@@ -47,6 +47,9 @@ export class FluidParticles {
             this.renderer.setSize( window.innerWidth, window.innerHeight);
             document.body.appendChild(this.renderer.domElement);
         })
+        window.addEventListener("keydown", (e) => {
+            console.log(e);
+        });
     }
 
     animate() {
