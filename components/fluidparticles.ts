@@ -63,15 +63,10 @@ export class FluidParticles {
     }
     constructScene() {
         this.scene.background = new THREE.Color(0xcecece);
-        
         this.editorCube.getWireFrame().forEach(x => this.scene.add(x));
-
-        // var solidMaterial = new THREE.MeshPhongMaterial( { color: 0xfafafa, side: THREE.DoubleSide } );
-        // var object = new THREE.Mesh( new THREE.OctahedronBufferGeometry( 10, 2 ), solidMaterial );
-        // object.position.set( 10, 0, 0);
-        // this.scene.add( object );
-        // var box = this.editorCube.getWireFrame();
-        // this.scene.add(box);
+        var cube = new THREE.BoxGeometry(10, 10, 10);
+        var mesh = new THREE.Mesh(cube, new THREE.MeshPhongMaterial({color: 0x3ABACE }));
+        this.scene.add(mesh);
     }
 
     
@@ -128,8 +123,8 @@ export class FluidParticles {
             this.mouse.x = e.clientX;
             this.mouse.y = e.clientY;
             if(this.isMouseDown) {
-                this.scene.rotateY(deltax / 300);
-                this.scene.rotateX(deltay / 300);
+                this.scene.rotateY(-deltax / 300);
+                this.scene.rotateX(-deltay / 300);
             }
             
             this.update();
@@ -160,12 +155,11 @@ export class FluidParticles {
     }
 
     update() {
-        console.log(this.scene);
-        
         this.camera.position.set(this.cameraPosition.x, this.cameraPosition.y, this.cameraPosition.z);
         this.camera.lookAt(this.target);
     }
     animate() {
+        this.raycaster.setFromCamera( this.mouse, this.camera );
         requestAnimationFrame(() => this.animate());
         this.renderer.render( this.scene, this.camera );
     }
