@@ -1,15 +1,15 @@
 import * as THREE from "three";
 
 export class WireframeCube {
-    height: number;
     width: number;
+    height: number;
     depth: number;
     origin: THREE.Vector3;
-    constructor(height?:number, width?:number, depth?:number, origin?: THREE.Vector3) {
-        this.height = height ?? 10;
-        this.depth = depth ?? 10;
-        this.width = width ?? 20;
-        this.origin = origin ?? new THREE.Vector3(0, 0, 0);
+    constructor(height?:number, depth?:number, width?:number, origin?: THREE.Vector3) {
+        this.origin = origin ?? new THREE.Vector3(0 - (width / 2), 0 - (height / 2), 0 - (depth / 2));
+        this.width = (width ?? 10) + this.origin.x;
+        this.depth = (depth ?? 10) + this.origin.z;
+        this.height = (height ?? 20) + this.origin.y;
     }
 
     getWireFrame() {
@@ -19,106 +19,106 @@ export class WireframeCube {
             var material = new THREE.LineBasicMaterial( { color: 0x0000ff } );
             var points = [];
             //vertical lines
-            points.push(new THREE.Vector3( 0, 0, 10 ) );
-            points.push(new THREE.Vector3( 0, 0, 0 ) );
+            points.push(new THREE.Vector3(this.origin.x, this.origin.y, this.depth ) );
+            points.push(new THREE.Vector3(this.origin.x, this.origin.y, this.origin.z ) );
             var geometry = new THREE.BufferGeometry().setFromPoints( points );
             var line = new THREE.Line( geometry, material );
             lines.push(line);
     
             var points = [];
-            points.push(new THREE.Vector3( 0, 10, 0 ) );
-            points.push(new THREE.Vector3( 0, 0, 0 ) );
+            points.push(new THREE.Vector3(this.origin.x, this.height, this.origin.z ) );
+            points.push(new THREE.Vector3(this.origin.x, this.origin.y, this.origin.z ) );
             var geometry = new THREE.BufferGeometry().setFromPoints( points );
             var line = new THREE.Line( geometry, material );
             lines.push(line);
     
             var points = [];
-            points.push(new THREE.Vector3( 10, 0, 0 ) );
-            points.push(new THREE.Vector3( 0, 0, 0 ) );
+            points.push(new THREE.Vector3(this.width, this.origin.y, this.origin.z ) );
+            points.push(new THREE.Vector3(this.origin.x, this.origin.y, this.origin.z ) );
             var geometry = new THREE.BufferGeometry().setFromPoints( points );
             var line = new THREE.Line( geometry, material );
             lines.push(line);
     
             var points = [];
-            points.push(new THREE.Vector3( 10, 10, 10 ) );
-            points.push(new THREE.Vector3( 10, 10, 0 ) );
+            points.push(new THREE.Vector3(this.width, this.height, this.depth ) );
+            points.push(new THREE.Vector3(this.width, this.height, this.origin.z ) );
             var geometry = new THREE.BufferGeometry().setFromPoints( points );
             var line = new THREE.Line( geometry, material );
             lines.push(line);
     
             var points = [];
-            points.push(new THREE.Vector3( 10, 10, 10 ) );
-            points.push(new THREE.Vector3( 10, 0, 10 ) );
+            points.push(new THREE.Vector3(this.width, this.height, this.depth ) );
+            points.push(new THREE.Vector3(this.width, this.origin.y, this.depth ) );
             var geometry = new THREE.BufferGeometry().setFromPoints( points );
             var line = new THREE.Line( geometry, material );
             lines.push(line);
     
             var points = [];
-            points.push(new THREE.Vector3( 10, 10, 10 ) );
-            points.push(new THREE.Vector3( 0, 10, 10 ) );
+            points.push(new THREE.Vector3(this.width, this.height, this.depth ) );
+            points.push(new THREE.Vector3(this.origin.x, this.height, this.depth ) );
             var geometry = new THREE.BufferGeometry().setFromPoints( points );
             var line = new THREE.Line( geometry, material );
             lines.push(line);
     
             var points = [];
-            points.push(new THREE.Vector3( 0, 10, 10 ) );
-            points.push(new THREE.Vector3( 0, 10, 0 ) );
+            points.push(new THREE.Vector3(this.origin.x, this.height, this.depth ) );
+            points.push(new THREE.Vector3(this.origin.x, this.height, this.origin.z ) );
             var geometry = new THREE.BufferGeometry().setFromPoints( points );
             var line = new THREE.Line( geometry, material );
             lines.push(line);
     
             var points = [];
-            points.push(new THREE.Vector3( 0, 10, 10 ) );
-            points.push(new THREE.Vector3( 0, 0, 10 ) );
+            points.push(new THREE.Vector3(this.origin.x, this.height, this.depth ) );
+            points.push(new THREE.Vector3(this.origin.x, this.origin.y, this.depth ) );
             var geometry = new THREE.BufferGeometry().setFromPoints( points );
             var line = new THREE.Line( geometry, material );
             lines.push(line);
     
             var points = [];
-            points.push(new THREE.Vector3( 10, 10, 0 ) );
-            points.push(new THREE.Vector3( 0, 10, 0 ) );
+            points.push(new THREE.Vector3(this.width, this.height, this.origin.z ) );
+            points.push(new THREE.Vector3(this.origin.x, this.height, this.origin.z ) );
             var geometry = new THREE.BufferGeometry().setFromPoints( points );
             var line = new THREE.Line( geometry, material );
             lines.push(line);
     
             var points = [];
-            points.push(new THREE.Vector3( 0, 10, 10 ) );
-            points.push(new THREE.Vector3( 0, 0, 10 ) );
+            points.push(new THREE.Vector3(this.origin.x, this.height, this.depth ) );
+            points.push(new THREE.Vector3(this.origin.x, this.origin.y, this.depth ) );
             var geometry = new THREE.BufferGeometry().setFromPoints( points );
             var line = new THREE.Line( geometry, material );
             lines.push(line);
     
             var points = [];
-            points.push(new THREE.Vector3( 10, 10, 0 ) );
-            points.push(new THREE.Vector3(10, 10, 10 ) );
+            points.push(new THREE.Vector3(this.width, this.height, this.origin.z ) );
+            points.push(new THREE.Vector3(this.width, this.height, this.depth ) );
             var geometry = new THREE.BufferGeometry().setFromPoints( points );
             var line = new THREE.Line( geometry, material );
             lines.push(line);
     
             var points = [];
-            points.push(new THREE.Vector3( 10, 10, 0 ) );
-            points.push(new THREE.Vector3(10, 10, 10 ) );
+            points.push(new THREE.Vector3(this.width, this.height, this.origin.z ) );
+            points.push(new THREE.Vector3(this.width, this.height, this.depth ) );
             var geometry = new THREE.BufferGeometry().setFromPoints( points );
             var line = new THREE.Line( geometry, material );
             lines.push(line);
     
             var points = [];
-            points.push(new THREE.Vector3( 0, 0, 10 ) );
-            points.push(new THREE.Vector3( 10, 0, 10 ) );
+            points.push(new THREE.Vector3(this.origin.x, this.origin.y, this.depth ) );
+            points.push(new THREE.Vector3(this.width, this.origin.y, this.depth ) );
             var geometry = new THREE.BufferGeometry().setFromPoints( points );
             var line = new THREE.Line( geometry, material );
             lines.push(line);
     
             var points = [];
-            points.push(new THREE.Vector3( 10, 0, 10 ) );
-            points.push(new THREE.Vector3( 10, 0, 0 ) );
+            points.push(new THREE.Vector3(this.width, this.origin.y, this.depth ) );
+            points.push(new THREE.Vector3(this.width, this.origin.y, this.origin.z ) );
             var geometry = new THREE.BufferGeometry().setFromPoints( points );
             var line = new THREE.Line( geometry, material );
             lines.push(line);
     
             var points = [];
-            points.push(new THREE.Vector3( 10, 10, 0 ) );
-            points.push(new THREE.Vector3( 10, 0, 0 ) );
+            points.push(new THREE.Vector3(this.width, this.height, this.origin.z ) );
+            points.push(new THREE.Vector3(this.width, this.origin.y, this.origin.z ) );
             var geometry = new THREE.BufferGeometry().setFromPoints( points );
             var line = new THREE.Line( geometry, material );
             lines.push(line);

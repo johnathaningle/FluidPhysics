@@ -1,10 +1,10 @@
 import * as THREE from "three";
 import { WireframeCube } from "./wireframecube";
+import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
+import { SSAOPass } from 'three/examples/jsm/postprocessing/SSAOPass';
 
-export enum StateType {
-    EDITING,
-    SIMULATING
-}
+
 //the main application!!!
 export class FluidParticles {
     editorCube: WireframeCube;
@@ -18,7 +18,7 @@ export class FluidParticles {
     raycaster: THREE.Raycaster;
     isMouseDown: boolean;
     FOV: number;
-    State: StateType;
+    isSimulating: boolean;
     lastTime: number;
     GRID_HEIGHT: number;
     GRID_WIDTH: number;
@@ -26,21 +26,25 @@ export class FluidParticles {
     PARTICLES_PER_CELL: number;
 
     constructor() {
-        this.editorCube = new WireframeCube(100, 200, 200);
+        this.editorCube = new WireframeCube(80, 80, 140);
         this.rootElement = document.getElementById("root");
-        this.State = StateType.EDITING;
+        this.isSimulating = false;
         this.scene = new THREE.Scene();
         this.mouse = new THREE.Vector2(); 
         this.cameraPosition = new THREE.Vector3(0, 0, 100);
         this.target = new THREE.Vector3(0, 0, 0);
 
-        this.camera = new THREE.PerspectiveCamera( 90, window.innerWidth / window.innerHeight, 1, 500 );
+        this.camera = new THREE.PerspectiveCamera( 100, window.innerWidth / window.innerHeight, 1, 5000 );
         this.camera.position.addScaledVector(this.cameraPosition, 1);
         this.camera.lookAt(this.target);
         
         this.raycaster = new THREE.Raycaster(this.target);
+        
+        var renderer = new THREE.WebGLRenderer();
+        var composer = new EffectComposer(renderer);
+        var ssaoPass = new SSAOPass( this.scene, this.camera, window.innerWidth, window.innerHeight );
 
-        this.renderer = new THREE.WebGLRenderer({ antialias: true});
+        this.renderer = renderer;
         this.renderer.setSize( window.innerWidth, window.innerHeight );
         this.rootElement.appendChild( this.renderer.domElement );
 
@@ -50,6 +54,8 @@ export class FluidParticles {
         this.animate();
     }
     constructLighting() {
+        this.scene.add( new THREE.DirectionalLight() );
+        this.scene.add( new THREE.HemisphereLight() );
         var pointLight = new THREE.PointLight( 0xffffff, 0.8 );
         this.camera.add( pointLight );
         var ambientLight = new THREE.AmbientLight( 0xcccccc, 0.4 );
@@ -70,12 +76,31 @@ export class FluidParticles {
 
     
 
+    toggleSimulation() {
+        if(this.isSimulating) {
+            this.endSimulation();
+            this.isSimulating = false;
+            document.getElementById("simulate").innerText= "Simulate";
+        }
+        else {
+            this.startSimulation();
+            this.isSimulating = true;
+            document.getElementById("simulate").innerText= "Stop Simulation";
+        }
+    }
+
     startSimulation() {
 
     }
 
+    endSimulation() {
+
+    }
+
     wireUpEventListeners() {
-        document.getElementById("reset-scene").addEventListener("click", () => {
+        document.getElementById("simulate").addEventListener("click", () => this.toggleSimulation());
+
+        document.getElementById("reset-orientation").addEventListener("click", () => {
             this.scene.rotation.set(0, 0, 0);
             this.camera.position.set(0, 0, 100);
             this.camera.lookAt(new THREE.Vector3(0, 0, 0));
