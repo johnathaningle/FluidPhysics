@@ -3,11 +3,13 @@ import { WireframeCube } from "./wireframecube";
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { SSAOPass } from 'three/examples/jsm/postprocessing/SSAOPass';
+import { PhysicsObject } from "./physicsobject";
 
 
 //the main application!!!
 export class FluidParticles {
-    currentTime: Date;
+    gravityObjects: Array<PhysicsObject>;
+    currentTime: number;
     editorCube: WireframeCube;
     rootElement: HTMLElement;
     renderer: THREE.Renderer;
@@ -27,27 +29,27 @@ export class FluidParticles {
     PARTICLES_PER_CELL: number;
 
     constructor() {
-        this.currentTime = new Date();
-        this.editorCube = new WireframeCube(80, 80, 140);
-        this.rootElement = document.getElementById("root");
+        this.gravityObjects = new Array<PhysicsObject>();
+        this.currentTime = Date.now();
         this.isSimulating = false;
         this.scene = new THREE.Scene();
         this.mouse = new THREE.Vector2(); 
+
+        this.editorCube = new WireframeCube(80, 80, 140);
         this.cameraPosition = new THREE.Vector3(0, 0, 100);
         this.target = new THREE.Vector3(0, 0, 0);
-
         this.camera = new THREE.PerspectiveCamera( 100, window.innerWidth / window.innerHeight, 1, 5000 );
         this.camera.position.addScaledVector(this.cameraPosition, 1);
         this.camera.lookAt(this.target);
-        
         this.raycaster = new THREE.Raycaster(this.target);
         
-        var renderer = new THREE.WebGLRenderer();
+        var renderer = new THREE.WebGLRenderer({antialias: true});
         var composer = new EffectComposer(renderer);
         var ssaoPass = new SSAOPass( this.scene, this.camera, window.innerWidth, window.innerHeight );
 
         this.renderer = renderer;
         this.renderer.setSize( window.innerWidth, window.innerHeight );
+        this.rootElement = document.getElementById("root");
         this.rootElement.appendChild( this.renderer.domElement );
 
         this.constructLighting();
@@ -66,9 +68,12 @@ export class FluidParticles {
     constructScene() {
         this.scene.background = new THREE.Color(0xcecece);
         this.editorCube.getWireFrame().forEach(x => this.scene.add(x));
+        this.editorCube.getCollisionObjects().forEach(x => this.gravityObjects.push(x));
         var cube = new THREE.BoxGeometry(10, 10, 10);
         var mesh = new THREE.Mesh(cube, new THREE.MeshPhongMaterial({color: 0x3ABACE }));
-        this.scene.add(mesh);
+        var physicsMesh = new PhysicsObject(mesh);
+        this.gravityObjects.push(physicsMesh);
+        this.gravityObjects.forEach(x => this.scene.add(x.object));
     }
 
     
@@ -117,7 +122,6 @@ export class FluidParticles {
             else {
                 this.cameraPosition.set(this.cameraPosition.x, this.cameraPosition.y, this.cameraPosition.z - 2);
             }
-            this.update();
         });
         window.addEventListener("mousemove", (e) => {
             var deltax = this.mouse.x - e.clientX;
@@ -129,7 +133,6 @@ export class FluidParticles {
                 this.scene.rotateX(-deltay / 300);
             }
             
-            this.update();
         });
         window.addEventListener("mousedown", (e) => {
             this.isMouseDown = true;
@@ -152,16 +155,22 @@ export class FluidParticles {
             else if(e.key == "ArrowDown") {
                 this.target.y -= 1;
             }
-            this.update();
         });
     }
 
-    update() {
+    private update(deltaTime: number) {
+        this.gravityObjects.map(x => {
+            if(!x.isStatic) {
+                x.object.position.set(x.object.position.x, x.object.position.y  - (deltaTime / 10), x.object.position.z);
+            }
+        });
         this.camera.position.set(this.cameraPosition.x, this.cameraPosition.y, this.cameraPosition.z);
         this.camera.lookAt(this.target);
     }
-    animate() {
-        this.currentTime = new Date();
+    private animate() {
+        var timeDelta = Date.now() - this.currentTime;
+        this.currentTime = Date.now();
+        this.update(timeDelta);
         this.raycaster.setFromCamera( this.mouse, this.camera );
         requestAnimationFrame(() => this.animate());
         this.renderer.render( this.scene, this.camera );

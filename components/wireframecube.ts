@@ -1,4 +1,6 @@
 import * as THREE from "three";
+import { Object3D, Mesh } from "three";
+import { PhysicsObject } from "./physicsobject";
 
 export class WireframeCube {
     width: number;
@@ -12,8 +14,17 @@ export class WireframeCube {
         this.height = (height ?? 20) + this.origin.y;
     }
 
-    getWireFrame() {
-            var lines = [];
+    getCollisionObjects(): Array<PhysicsObject> {
+        var floorCube = new THREE.BoxGeometry(this.width * 2, 1, this.depth * 2);
+        var floorMesh = new THREE.Mesh(floorCube, new THREE.MeshPhongMaterial({color: 0xFABACD }));
+        floorMesh.position.set(floorMesh.position.x, -this.height, floorMesh.position.z);
+        var collider = new PhysicsObject(floorMesh);
+        collider.isStatic = true;
+        return new Array<PhysicsObject>(collider);
+    }
+
+    getWireFrame(): Array<Object3D | Mesh> {
+            var lines: Array<Object3D | Mesh> = [];
             //create a blue LineBasicMaterial
             var material = new THREE.LineBasicMaterial( { color: 0x0000ff } );
 
@@ -113,7 +124,8 @@ export class WireframeCube {
             lines.push(line);
             
             return lines;
-        
     }
+
+
 
 }
