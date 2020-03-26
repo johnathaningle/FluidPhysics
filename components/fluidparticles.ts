@@ -16,7 +16,6 @@ export class FluidParticles {
     camera: THREE.PerspectiveCamera;
     scene: THREE.Scene;
     target: THREE.Vector3;
-    cameraPosition: THREE.Vector3;
     mouse: THREE.Vector2;
     raycaster: THREE.Raycaster;
     isMouseDown: boolean;
@@ -36,10 +35,10 @@ export class FluidParticles {
         this.mouse = new THREE.Vector2(); 
 
         this.editorCube = new WireframeCube(80, 80, 140);
-        this.cameraPosition = new THREE.Vector3(0, 0, 100);
+        var cameraPosition = new THREE.Vector3(0, 0, 100);
         this.target = new THREE.Vector3(0, 0, 0);
         this.camera = new THREE.PerspectiveCamera( 100, window.innerWidth / window.innerHeight, 1, 5000 );
-        this.camera.position.addScaledVector(this.cameraPosition, 1);
+        this.camera.position.addScaledVector(cameraPosition, 1);
         this.camera.lookAt(this.target);
         this.raycaster = new THREE.Raycaster(this.target);
         
@@ -71,7 +70,7 @@ export class FluidParticles {
         this.editorCube.getCollisionObjects().forEach(x => this.gravityObjects.push(x));
         var cube = new THREE.BoxGeometry(10, 10, 10);
         var mesh = new THREE.Mesh(cube, new THREE.MeshPhongMaterial({color: 0x3ABACE }));
-        var physicsMesh = new PhysicsObject(mesh);
+        var physicsMesh = new PhysicsObject(mesh, new THREE.Vector3(0, -10, 0));
         this.gravityObjects.push(physicsMesh);
         this.gravityObjects.forEach(x => this.scene.add(x.object));
     }
@@ -104,6 +103,7 @@ export class FluidParticles {
 
         document.getElementById("reset-orientation").addEventListener("click", () => {
             this.scene.rotation.set(0, 0, 0);
+            this.scene.position.set(0, 0, 0);
             this.camera.position.set(0, 0, 100);
             this.camera.lookAt(new THREE.Vector3(0, 0, 0));
         });
@@ -117,10 +117,10 @@ export class FluidParticles {
         window.addEventListener("mousewheel", (e) => {
             var event = e as WheelEvent;
             if(event.deltaY > 0) {
-                this.cameraPosition.set(this.cameraPosition.x, this.cameraPosition.y, this.cameraPosition.z + 2);
+                this.scene.scale.set(this.scene.scale.x + 0.2, this.scene.scale.y + 0.2, this.scene.scale.z + 0.2);
             }
             else {
-                this.cameraPosition.set(this.cameraPosition.x, this.cameraPosition.y, this.cameraPosition.z - 2);
+                this.scene.scale.set(this.scene.scale.x * 0.9, this.scene.scale.y * 0.9, this.scene.scale.z * 0.9);
             }
         });
         window.addEventListener("mousemove", (e) => {
@@ -144,16 +144,16 @@ export class FluidParticles {
       
         window.addEventListener("keydown", (e) => {
             if(e.key == "ArrowLeft") {
-                this.target.x += 1;
+                this.scene.position.setX(this.scene.position.x + 1);
             }
             else if(e.key == "ArrowRight") {
-                this.target.x -= 1;
+                this.scene.position.setX(this.scene.position.x - 1);
             }
             else if(e.key == "ArrowUp") {
-                this.target.y += 1;
+                this.scene.position.setY(this.scene.position.y - 1);
             }
             else if(e.key == "ArrowDown") {
-                this.target.y -= 1;
+                this.scene.position.setY(this.scene.position.y + 1);
             }
         });
     }
@@ -161,11 +161,13 @@ export class FluidParticles {
     private update(deltaTime: number) {
         this.gravityObjects.map(x => {
             if(!x.isStatic) {
-                x.object.position.set(x.object.position.x, x.object.position.y  - (deltaTime / 10), x.object.position.z);
+                var movementVector = x.calculateMovement(this.gravityObjects.filter(x => x.isStatic), deltaTime);
+                if(movementVector != null) {
+                    x.object.position.add(movementVector);
+                }
+                
             }
         });
-        this.camera.position.set(this.cameraPosition.x, this.cameraPosition.y, this.cameraPosition.z);
-        this.camera.lookAt(this.target);
     }
     private animate() {
         var timeDelta = Date.now() - this.currentTime;
