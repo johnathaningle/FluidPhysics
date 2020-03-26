@@ -7,6 +7,7 @@ import { SSAOPass } from 'three/examples/jsm/postprocessing/SSAOPass';
 
 //the main application!!!
 export class FluidParticles {
+    currentTime: Date;
     editorCube: WireframeCube;
     rootElement: HTMLElement;
     renderer: THREE.Renderer;
@@ -26,6 +27,7 @@ export class FluidParticles {
     PARTICLES_PER_CELL: number;
 
     constructor() {
+        this.currentTime = new Date();
         this.editorCube = new WireframeCube(80, 80, 140);
         this.rootElement = document.getElementById("root");
         this.isSimulating = false;
@@ -159,6 +161,7 @@ export class FluidParticles {
         this.camera.lookAt(this.target);
     }
     animate() {
+        this.currentTime = new Date();
         this.raycaster.setFromCamera( this.mouse, this.camera );
         requestAnimationFrame(() => this.animate());
         this.renderer.render( this.scene, this.camera );
