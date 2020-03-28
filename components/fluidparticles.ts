@@ -161,11 +161,7 @@ export class FluidParticles {
     private update(deltaTime: number) {
         this.gravityObjects.map(x => {
             if(!x.isStatic) {
-                var movementVector = x.calculateMovement(this.gravityObjects.filter(x => x.isStatic), deltaTime);
-                if(movementVector != null) {
-                    x.object.position.add(movementVector);
-                }
-                
+                x.calculateMovement(this.gravityObjects.filter(x => x.isStatic), deltaTime);
             }
         });
     }
